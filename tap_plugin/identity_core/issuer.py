@@ -66,7 +66,12 @@ def _infer_provider(host: str) -> str:
     # Non-authoritative provider label inferred from the host. Kept here so every
     # observer's envelope agrees on the field (github's collector and samsite's
     # collector must produce identical node payloads to merge cleanly).
-    return "github-actions" if "githubusercontent.com" in host else ""
+    # Dot-anchored suffix match, not substring: `"githubusercontent.com" in host` would
+    # also label e.g. `evilgithubusercontent.com`. The label is non-authoritative either
+    # way (identity rests on the canonical URL, not this), but mislabeling is free to
+    # prevent (CodeQL py/incomplete-url-substring-sanitization).
+    is_github = host == "githubusercontent.com" or host.endswith(".githubusercontent.com")
+    return "github-actions" if is_github else ""
 
 
 def oidc_issuer_node_envelope(raw: str, *, dimensions: dict[str, str] | None = None) -> dict[str, Any]:
