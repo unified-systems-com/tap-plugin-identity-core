@@ -2,8 +2,32 @@
   "slug": "TRUSTS_ISSUER__identity_core",
   "name": "Trusts Issuer",
   "description": "A principal registers trust in an OIDC issuer — its configured issuer URL matches the issuer's canonical host. A generic federation relationship, not specific to any one cloud: an AWS IAM OIDC provider, a GCP workload-identity pool, an Azure federated credential, or a Kubernetes/Vault JWT trust are all sources. The source is WILDCARD (omitted) precisely so any principal type can trust an issuer without identity_core depending upward on that principal's plugin — the substrate owns the generic vocabulary, the domain plugin supplies the source node. Owning this edge TYPE asserts no trust (existence != trust); a trust instance exists only when an emitter creates the edge. In v0 the only emitter is github_core's enrichment, matching aws_iam_oidc_provider.url against the issuer host. Derived link (not hotlink-backed): the provider is written by aws_core, which neither knows about nor emits this edge.",
-  "targets": ["identity_core__oidc_issuer"],
+  "targets": [
+    "identity_core__oidc_issuer"
+  ],
   "default_dimensions": {
     "identity.protocol": "oidc"
+  },
+  "property_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "dependentRequired": {
+      "link_rule": [
+        "matched_value"
+      ],
+      "matched_value": [
+        "link_rule"
+      ]
+    },
+    "properties": {
+      "link_rule": {
+        "type": "string",
+        "description": "Derived-link provenance: the name of the declarative grid-link manifest rule that emitted this edge (WHICH rule matched). Written by enrichment engines (v0: github_core's); comes paired with matched_value or not at all. The same provenance shape rides every manifest-derived edge type — if the derived-link engine ever graduates to a substrate, these keys become a system-owned lane (see req-grid-edge-schema-required-5 in core's spec-grid-edge.md)."
+      },
+      "matched_value": {
+        "type": "string",
+        "description": "Derived-link provenance: the exact value the rule matched on (e.g. the issuer host) — WHAT the derivation keyed on."
+      }
+    }
   }
 }
