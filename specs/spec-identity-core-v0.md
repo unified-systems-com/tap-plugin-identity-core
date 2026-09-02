@@ -120,6 +120,7 @@ a one-hop graph traversal rather than code-reading.
 ### Plugin Scope
 ----
 RID: `req-identity-core-scope`
+
 Status: `Implemented`
 
 `identity_core` is a **library / substrate** plugin. Its v0 surface is one model
@@ -134,6 +135,7 @@ into (or point their edges at).
 ### OIDC Issuer Model
 ----
 RID: `req-identity-core-model`
+
 Status: `Implemented`
 
 `ENTITY_TYPE = "identity_core__oidc_issuer"`, `ENTITY_NAME = "OIDC Issuer"`,
@@ -159,6 +161,7 @@ reference. The node carries `DEFAULT_DIMENSIONS = {"identity.protocol": "oidc"}`
 ### Canonical Issuer URL
 ----
 RID: `req-identity-core-canonical-url`
+
 Status: `Implemented`
 
 `canonical_issuer_url(raw)` defines the **single** canonical form so independent
@@ -184,6 +187,7 @@ none; the scheme'd `iss` is retained as the `issuer_url` display field.)
 ### Deterministic Issuer Id
 ----
 RID: `req-identity-core-issuer-id`
+
 Status: `Implemented`
 
 `oidc_issuer_id(raw) -> UUID` is `uuid5(TAP_NAMESPACE, "identity_core__oidc_issuer:" +
@@ -203,6 +207,7 @@ is idempotent across runs and observers.
 ### Node Envelope Helper
 ----
 RID: `req-identity-core-envelope`
+
 Status: `Implemented`
 
 `oidc_issuer_node_envelope(raw, *, dimensions=None, display_name=None)` returns a GRIFT
@@ -216,6 +221,7 @@ their own dimensions/anchor context; the helper does not write to the grid itsel
 ### General-Case Synthesis
 ----
 RID: `req-identity-core-synthesis-general`
+
 Status: `Partial`
 
 Issuer nodes are synthesized **generally**, by any observer, never seeded. There is no
@@ -245,6 +251,7 @@ mint from without reaching into github.
 ### Existence Is Not Trust
 ----
 RID: `req-identity-core-existence-not-trust`
+
 Status: `Implemented`
 
 The presence of an `oidc_issuer` node conveys only that an issuer identity was
@@ -261,6 +268,7 @@ node existence.
 ### Consumer Edge Retargets
 ----
 RID: `req-identity-core-edge-retargets`
+
 Status: `Implemented`
 
 Each consumer retargets its issuer-touching edge to `identity_core__oidc_issuer`. Edge
@@ -279,6 +287,7 @@ edge should accept any workflow/source (Bucket-1 wildcard precedent), it stays w
 ### Dimension Strategy
 ----
 RID: `req-identity-core-dimensions`
+
 Status: `Implemented`
 
 The model default dimension is `{"identity.protocol": "oidc"}`, establishing the
@@ -289,6 +298,7 @@ inventing sibling ones.
 ### Dependency Direction
 ----
 RID: `req-identity-core-deps`
+
 Status: `Implemented`
 
 identity_core depends on nothing above core (`tap_grid`/`tap` only). Consumers depend
@@ -302,6 +312,7 @@ github_core` issuer import is deleted in the same change (samsite imports
 ### Extraction & Migration
 ----
 RID: `req-identity-core-migration`
+
 Status: `Implemented`
 
 The move renames `github_core__oidc_issuer` → `identity_core__oidc_issuer`. That
@@ -329,6 +340,7 @@ world; it resyncs at plugin re-release, like the compliance_core extraction befo
 ### v0 Non-Goals
 ----
 RID: `req-identity-core-nongoals`
+
 Status: `Implemented`
 
 Explicitly out of scope for v0:
