@@ -1,5 +1,6 @@
 manifest_version = "0"
 plugin_version = "0.1.0"
+requires_tap = ">=0.1.5"
 slug = "identity_core"
 name = "TAP Identity Core"
 description = "Cross-cutting federated-identity vocabulary substrate — the OIDC issuer convergence node + issuer identity primitives. Library plugin: no collector. Owns one generic edge (TRUSTS_ISSUER, wildcard source) so any principal can trust an issuer without the substrate depending upward."
@@ -9,3 +10,8 @@ identity_core__oidc_issuer = "tap_plugin.identity_core.models.oidc_issuer.OidcIs
 
 [edges]
 TRUSTS_ISSUER__identity_core = "edges/TRUSTS_ISSUER.edge.json"
+
+[[boot.records]]
+name = "ci"
+description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in — depends_on closure + self, offline, credential-free. The consumer flips self to editable."
+sha256 = "8cf60f62083fa3c326f4829272802b1b3b8b6321a7de15b87a91de6069e65dca"
