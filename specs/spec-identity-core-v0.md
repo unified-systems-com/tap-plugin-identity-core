@@ -5,7 +5,7 @@
 - **Slug:** `identity_core`
 - **Kind:** substrate library plugin — vocabulary + mechanism, **no collector in v0**.
 - **Public surface:**
-  - **Models** (see `req-identity-core-model`): `oidc_issuer`.
+  - **Models** (see `req-identity-core-model`, `req-identity-core-organization`): `oidc_issuer`, `organization`.
   - **Helpers** (see `req-identity-core-issuer-id`, `req-identity-core-canonical-url`,
     `req-identity-core-envelope`):
     - `identity_core.issuer.canonical_issuer_url(raw: str) -> str` — the one canonical
@@ -106,6 +106,7 @@ a one-hop graph traversal rather than code-reading.
 | --- | --- | :---: | --- |
 | req-identity-core-scope | [Plugin Scope](#plugin-scope) | Implemented | Substrate library; `oidc_issuer` model + issuer helpers; no collector, no owned edges. |
 | req-identity-core-model | [OIDC Issuer Model](#oidc-issuer-model) | Implemented | `identity_core__oidc_issuer`; keyed on canonical issuer host; minimal fields. `get_name()` is the `issuer_url` (no well-known catalog; `display_name` deferred — no backing field). |
+| req-identity-core-organization | [Organization Model](#organization-model) | Implemented | `identity_core__organization`: a party that holds identities; role-free (customer/vendor/operator is a relationship asserted elsewhere); keyed on `name` in v0. |
 | req-identity-core-canonical-url | [Canonical Issuer URL](#canonical-issuer-url) | Implemented | One normalization spanning scheme'd/scheme-less forms; the convergence guarantee. |
 | req-identity-core-issuer-id | [Deterministic Issuer Id](#deterministic-issuer-id) | Implemented | `oidc_issuer_id(raw)` over the canonical form; the sole id path. Namespace is the per-plugin `IDENTITY_CORE_NAMESPACE` (no repo-wide `TAP_NAMESPACE` constant exists; per-plugin is the convention). |
 | req-identity-core-envelope | [Node Envelope Helper](#node-envelope-helper) | Implemented | `oidc_issuer_node_envelope(raw, *, dimensions=None)` returns the `{entity, node}` GRIFT fragment consumers merge. `display_name` param dropped — the spine projects `get_name()`=issuer_url, so a divergent name would be overwritten (honest v0 deviation). |
@@ -123,8 +124,8 @@ RID: `req-identity-core-scope`
 
 Status: `Implemented`
 
-`identity_core` is a **library / substrate** plugin. Its v0 surface is one model
-(`oidc_issuer`), the issuer helper module (`identity_core.issuer`), and one generic
+`identity_core` is a **library / substrate** plugin. Its v0 surface is two models
+(`oidc_issuer`, `organization`), the issuer helper module (`identity_core.issuer`), and one generic
 edge type (`TRUSTS_ISSUER__identity_core`, wildcard source). It registers its node
 type, that edge type, and its dimensions at load; it ships **no collector** (`apps.py`
 is `pass`; no `tap_cares` registration) and emits no edges itself. Consumers import
@@ -157,6 +158,40 @@ issuer we have no friendlier universal label), or an explicitly supplied per-nod
 `display_name` when a consumer provides one. Display: the amber/gold identity-anchor
 palette (distinct from github-blue, AWS-beige, sigstore-green) — the hub all three
 reference. The node carries `DEFAULT_DIMENSIONS = {"identity.protocol": "oidc"}`.
+
+### Organization Model
+----
+RID: `req-identity-core-organization`
+
+Status: `Implemented`
+
+`ENTITY_TYPE = "identity_core__organization"`, `ENTITY_NAME = "Organization"`. A party that
+holds identities: a company, agency, or other body people act on behalf of. Added
+2026-09-22 so an instance can place its customers on a design (highbar's landing diagram
+draws "customers" as organizations); it is the first identity-holding party type, and it is
+here rather than in any instance plugin because every identity-shaped plugin will want the
+same node to hang users, groups and tenants from.
+
+**Role-free.** The type says what the thing *is*, never what it is *to someone*. Customer,
+vendor, assessor and operator are relationships another plugin asserts with an edge; the
+same company is a customer in one instance and a vendor in another, and a type that bakes
+one view in cannot be shared across them. This follows `req-identity-core-existence-not-trust`:
+the substrate names the party and takes no position on its relationships.
+
+Fields: `name` (required; display and v0 identity), `domain` (primary DNS domain when known;
+blank = not observed), `configuration` (object), `tags` (object). `NATURAL_KEY = ("name",)`:
+a designed organization often has no domain yet, so its name is the only fact it carries;
+revisit when an observer supplies a stronger key. No default dimension: `identity.protocol`
+does not apply, and a party-kind value would restate the entity type. Icon `organization`,
+same identity-anchor palette as `oidc_issuer`.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description |
+| --- | --- | :---: | --- |
+| req-identity-core-organization-1 | Name only | Implemented | A `create_node` write with only `name` succeeds; `domain` stays blank (not observed). |
+| req-identity-core-organization-2 | Name required | Implemented | A write without `name` is refused. |
+| req-identity-core-organization-3 | Role-free | Implemented | The type carries no default dimension and no field naming a role. |
 
 ### Canonical Issuer URL
 ----
