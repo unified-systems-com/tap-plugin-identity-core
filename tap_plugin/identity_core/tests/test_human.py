@@ -64,6 +64,27 @@ class TestHuman:
         assert edge.success, edge
 
 
+    def test_a_shared_account_points_at_two_humans(self) -> None:
+        """req-identity-core-human-5: one account held by two people is recorded, not refused."""
+        from tap_grid.models import Edge
+
+        a, b = _create({"handle": "e1"}), _create({"handle": "e2"})
+        account = _write(
+            WriteOperation(verb="create_node", type_slug="identity_core__organization", payload={"name": "shared"})
+        )
+        for human in (a, b):
+            edge = _write(
+                WriteOperation(
+                    verb="create_edge",
+                    from_target=account.entity_id,
+                    to_target=human.entity_id,
+                    edge_type="HELD_BY_HUMAN__identity_core",
+                )
+            )
+            assert edge.success, edge
+        held = Edge.objects.filter(from_entity_id=account.entity_id, edge_type="HELD_BY_HUMAN__identity_core")
+        assert {str(e.to_entity_id) for e in held} == {str(a.entity_id), str(b.entity_id)}
+
 def test_keyed_by_handle() -> None:
     assert Human.NATURAL_KEY == ("handle",)
     assert "handle" in {f.name for f in Human._meta.get_fields()}

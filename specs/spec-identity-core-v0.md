@@ -217,6 +217,9 @@ records are the same person; it is drawn by whoever knows that (an operator seed
 collector matching an immutable identifier) and never inferred from a display name or an email
 address. An account with no such edge is unmatched, which an access review must be able to show.
 Its one property, `matched_on`, records how the tie was made.
+Cardinality is not constrained: an account pointing at more than one human is a *shared* account
+(a break-glass login, a service account several people hold), which is itself an access-review
+finding, so the graph records it rather than refusing it.
 
 Fields: `handle` (required; the identity), `name` (display name; blank = not observed).
 `NATURAL_KEY = ("handle",)`, declared and not unique, as every natural key is
@@ -235,6 +238,7 @@ identity-anchor palette.
 | req-identity-core-human-2 | Handle required | Implemented | A write without `handle` is refused. |
 | req-identity-core-human-3 | No free-form blob | Implemented | A write carrying `configuration` is refused. |
 | req-identity-core-human-4 | Source unrestricted | Implemented | `HELD_BY_HUMAN__identity_core` accepts a source of any type (a non-account included) and a `matched_on` property; the spec and edge description say so. |
+| req-identity-core-human-5 | Shared accounts are recorded | Implemented | One source may hold `HELD_BY_HUMAN__identity_core` edges to two humans, and both are queryable. |
 
 ### Canonical Issuer URL
 ----
