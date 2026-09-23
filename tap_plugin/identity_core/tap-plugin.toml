@@ -3,13 +3,15 @@ plugin_version = "0.1.0"
 requires_tap = ">=0.1.5"
 slug = "identity_core"
 name = "TAP Identity Core"
-description = "Cross-cutting federated-identity vocabulary substrate — the OIDC issuer convergence node + issuer identity primitives. Library plugin: no collector. Owns one generic edge (TRUSTS_ISSUER, wildcard source) so any principal can trust an issuer without the substrate depending upward."
+description = "Cross-cutting federated-identity vocabulary substrate — the OIDC issuer convergence node + issuer identity primitives. Library plugin: no collector. Owns two generic edges with wildcard sources (TRUSTS_ISSUER, HELD_BY_HUMAN) so any principal can trust an issuer, and any account can resolve to one human, without the substrate depending upward."
 
 [models]
+identity_core__human = "tap_plugin.identity_core.models.human.Human"
 identity_core__oidc_issuer = "tap_plugin.identity_core.models.oidc_issuer.OidcIssuer"
 identity_core__organization = "tap_plugin.identity_core.models.organization.Organization"
 
 [edges]
+HELD_BY_HUMAN__identity_core = "edges/HELD_BY_HUMAN.edge.json"
 TRUSTS_ISSUER__identity_core = "edges/TRUSTS_ISSUER.edge.json"
 
 [[boot.records]]

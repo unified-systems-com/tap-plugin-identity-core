@@ -5,7 +5,7 @@
 - **Slug:** `identity_core`
 - **Kind:** substrate library plugin — vocabulary + mechanism, **no collector in v0**.
 - **Public surface:**
-  - **Models** (see `req-identity-core-model`, `req-identity-core-organization`): `oidc_issuer`, `organization`.
+  - **Models** (see `req-identity-core-model`, `req-identity-core-organization`, `req-identity-core-human`): `oidc_issuer`, `organization`, `human`.
   - **Helpers** (see `req-identity-core-issuer-id`, `req-identity-core-canonical-url`,
     `req-identity-core-envelope`):
     - `identity_core.issuer.canonical_issuer_url(raw: str) -> str` — the one canonical
@@ -107,6 +107,7 @@ a one-hop graph traversal rather than code-reading.
 | req-identity-core-scope | [Plugin Scope](#plugin-scope) | Implemented | Substrate library; `oidc_issuer` model + issuer helpers; no collector, no owned edges. |
 | req-identity-core-model | [OIDC Issuer Model](#oidc-issuer-model) | Implemented | `identity_core__oidc_issuer`; keyed on canonical issuer host; minimal fields. `get_name()` is the `issuer_url` (no well-known catalog; `display_name` deferred — no backing field). |
 | req-identity-core-organization | [Organization Model](#organization-model) | Implemented | `identity_core__organization`: a party that holds identities; role-free (customer/vendor/operator is a relationship asserted elsewhere); keyed on `name` in v0. |
+| req-identity-core-human | [Human Model](#human-model) | Implemented | `identity_core__human`: one real person; every system's account for them points at it with the wildcard-source `HELD_BY_HUMAN__identity_core`; keyed on an operator-assigned `handle`. |
 | req-identity-core-canonical-url | [Canonical Issuer URL](#canonical-issuer-url) | Implemented | One normalization spanning scheme'd/scheme-less forms; the convergence guarantee. |
 | req-identity-core-issuer-id | [Deterministic Issuer Id](#deterministic-issuer-id) | Implemented | `oidc_issuer_id(raw)` over the canonical form; the sole id path. Namespace is the per-plugin `IDENTITY_CORE_NAMESPACE` (no repo-wide `TAP_NAMESPACE` constant exists; per-plugin is the convention). |
 | req-identity-core-envelope | [Node Envelope Helper](#node-envelope-helper) | Implemented | `oidc_issuer_node_envelope(raw, *, dimensions=None)` returns the `{entity, node}` GRIFT fragment consumers merge. `display_name` param dropped — the spine projects `get_name()`=issuer_url, so a divergent name would be overwritten (honest v0 deviation). |
@@ -192,6 +193,52 @@ same identity-anchor palette as `oidc_issuer`.
 | req-identity-core-organization-1 | Name only | Implemented | A `create_node` write with only `name` succeeds; `domain` stays blank (not observed). |
 | req-identity-core-organization-2 | Name required | Implemented | A write without `name` is refused. |
 | req-identity-core-organization-3 | Role-free | Implemented | The type carries no default dimension and no field naming a role. |
+
+### Human Model
+----
+RID: `req-identity-core-human`
+
+Status: `Implemented`
+
+`ENTITY_TYPE = "identity_core__human"`, `ENTITY_NAME = "Human"`. One real person, independent of
+any system they hold an account in. Added 2026-09-23 because the Okta, Duo and Teleport corpora
+each model their own user and each left the cross-system link open-ended: without a neutral
+node, "these four accounts are one person" cannot be said, and that join is most of what a
+FedRAMP access review asks. George chose "human" over "person" (2026-09-23); Cartography's
+equivalent node is also `Human`.
+
+**The link is an edge, not a copied field.** `HELD_BY_HUMAN__identity_core` runs from any
+account type to the human. Its source is wildcard, as `TRUSTS_ISSUER`'s is, so a vendor plugin
+points at the human without identity_core depending on the vendor. Wildcard means the schema
+accepts any source type, not only accounts, because nothing here can tell an account type from any
+other; keeping the source an account is the drawer's job, and a traversal that needs accounts only
+filters the source type. The edge asserts that two
+records are the same person; it is drawn by whoever knows that (an operator seed, an HR feed, a
+collector matching an immutable identifier) and never inferred from a display name or an email
+address. An account with no such edge is unmatched, which an access review must be able to show.
+Its one property, `matched_on`, records how the tie was made.
+Cardinality is not constrained: an account pointing at more than one human is a *shared* account
+(a break-glass login, a service account several people hold), which is itself an access-review
+finding, so the graph records it rather than refusing it.
+
+Fields: `handle` (required; the identity), `name` (display name; blank = not observed).
+`NATURAL_KEY = ("handle",)`, declared and not unique, as every natural key is
+(`req-grid-entity-natural-key-3`: two rows sharing a handle make the lookup refuse to choose): an identifier the operator assigns and keeps stable, such as an HR
+employee number or the organization's canonical username. A name changes, and an email address
+is an account attribute that is reassigned and aliased, so neither is identity. The type has no
+free-form `configuration` field: there is no source payload to preserve, and a person record is
+where unchosen personal data would collect. No default dimension. Icon `human`, the
+identity-anchor palette.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description |
+| --- | --- | :---: | --- |
+| req-identity-core-human-1 | Handle only | Implemented | A `create_node` write with only `handle` succeeds; `name` stays blank, and the display name falls back to the handle. |
+| req-identity-core-human-2 | Handle required | Implemented | A write without `handle` is refused. |
+| req-identity-core-human-3 | No free-form blob | Implemented | A write carrying `configuration` is refused. |
+| req-identity-core-human-4 | Source unrestricted | Implemented | `HELD_BY_HUMAN__identity_core` accepts a source of any type (a non-account included) and a `matched_on` property; the spec and edge description say so. |
+| req-identity-core-human-5 | Shared accounts are recorded | Implemented | One source may hold `HELD_BY_HUMAN__identity_core` edges to two humans, and both are queryable. |
 
 ### Canonical Issuer URL
 ----
