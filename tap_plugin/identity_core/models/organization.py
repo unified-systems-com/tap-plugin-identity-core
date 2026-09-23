@@ -16,7 +16,8 @@ class Organization(BaseModel):
     view in cannot be shared. An instance plugin that needs "customer" draws that edge itself.
 
     ``domain`` is the organization's primary DNS domain when one is known; blank means not
-    observed, not "has none". Identity rests on ``name`` in v0 because a designed organization
+    observed, not "has none". There is no free-form ``configuration`` blob: nothing collects an
+    organization's source record, so the field would only be a place for unchosen data to collect. Identity rests on ``name`` in v0 because a designed organization
     often has no domain yet; revisit when an observer can supply a stronger key.
 
     Spec: specs/spec-identity-core-v0.md (req-identity-core-organization).
@@ -45,20 +46,17 @@ class Organization(BaseModel):
     FIELD_CRUD_SCHEMA: ClassVar[dict[str, Any]] = {
         "name": {"type": "string", "minLength": 1},
         "domain": {"type": "string"},
-        "configuration": {"type": "object"},
         "tags": {"type": "object"},
     }
     FIELD_VALIDATION_SCHEMA: ClassVar[dict[str, Any]] = {
         "name": {"validation": "jsonschema", "schema": {"type": "string", "minLength": 1}},
         "domain": {"validation": "jsonschema", "schema": {"type": "string"}},
-        "configuration": {"validation": "jsonschema", "schema": {"type": "object"}},
         "tags": {"validation": "jsonschema", "schema": {"type": "object"}},
     }
     CREATE_REQUIRED: ClassVar[list[str]] = ["name"]
 
     name = models.CharField(max_length=255, blank=True, default="", db_index=True)
     domain = models.CharField(max_length=255, blank=True, default="", db_index=True)
-    configuration = models.JSONField(default=dict, blank=True)
     tags = models.JSONField(default=dict, blank=True)
 
     class Meta(BaseModel.Meta):
