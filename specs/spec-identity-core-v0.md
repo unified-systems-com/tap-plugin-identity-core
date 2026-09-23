@@ -209,14 +209,18 @@ equivalent node is also `Human`.
 
 **The link is an edge, not a copied field.** `HELD_BY_HUMAN__identity_core` runs from any
 account type to the human. Its source is wildcard, as `TRUSTS_ISSUER`'s is, so a vendor plugin
-points at the human without identity_core depending on the vendor. The edge asserts that two
+points at the human without identity_core depending on the vendor. Wildcard means the schema
+accepts any source type, not only accounts, because nothing here can tell an account type from any
+other; keeping the source an account is the drawer's job, and a traversal that needs accounts only
+filters the source type. The edge asserts that two
 records are the same person; it is drawn by whoever knows that (an operator seed, an HR feed, a
 collector matching an immutable identifier) and never inferred from a display name or an email
 address. An account with no such edge is unmatched, which an access review must be able to show.
 Its one property, `matched_on`, records how the tie was made.
 
 Fields: `handle` (required; the identity), `name` (display name; blank = not observed).
-`NATURAL_KEY = ("handle",)`: an identifier the operator assigns and keeps stable, such as an HR
+`NATURAL_KEY = ("handle",)`, declared and not unique, as every natural key is
+(`req-grid-entity-natural-key-3`: two rows sharing a handle make the lookup refuse to choose): an identifier the operator assigns and keeps stable, such as an HR
 employee number or the organization's canonical username. A name changes, and an email address
 is an account attribute that is reassigned and aliased, so neither is identity. The type has no
 free-form `configuration` field: there is no source payload to preserve, and a person record is
@@ -230,7 +234,7 @@ identity-anchor palette.
 | req-identity-core-human-1 | Handle only | Implemented | A `create_node` write with only `handle` succeeds; `name` stays blank, and the display name falls back to the handle. |
 | req-identity-core-human-2 | Handle required | Implemented | A write without `handle` is refused. |
 | req-identity-core-human-3 | No free-form blob | Implemented | A write carrying `configuration` is refused. |
-| req-identity-core-human-4 | Any account can point here | Implemented | `HELD_BY_HUMAN__identity_core` accepts a source from another type and a `matched_on` property. |
+| req-identity-core-human-4 | Source unrestricted | Implemented | `HELD_BY_HUMAN__identity_core` accepts a source of any type (a non-account included) and a `matched_on` property; the spec and edge description say so. |
 
 ### Canonical Issuer URL
 ----

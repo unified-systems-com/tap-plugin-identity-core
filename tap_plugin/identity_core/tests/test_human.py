@@ -44,9 +44,10 @@ class TestHuman:
         """req-identity-core-human-3: no free-form field to collect personal data into."""
         assert not _create({"handle": "e1042", "configuration": {"ssn": "x"}}).success
 
-    def test_any_account_type_can_be_held_by_a_human(self) -> None:
-        """req-identity-core-human-4: the edge's source is wildcard, so a type from another plugin
-        (here identity_core's own organization, standing in for a vendor account) can point at a human."""
+    def test_edge_source_is_unrestricted(self) -> None:
+        """req-identity-core-human-4: the source is wildcard, so the schema accepts any type, not only
+        accounts. An organization is not an account, and the write still succeeds: keeping the source an
+        account is the drawer's job, which is what the edge description and the spec say."""
         human = _create({"handle": "e1042"})
         other = _write(
             WriteOperation(verb="create_node", type_slug="identity_core__organization", payload={"name": "x"})
