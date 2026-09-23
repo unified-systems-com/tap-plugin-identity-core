@@ -1,0 +1,18 @@
+{
+  "slug": "HELD_BY_HUMAN__identity_core",
+  "name": "Held By Human",
+  "description": "An account in some system belongs to this person: an Okta user, a Duo user, a Teleport user or a GitLab user is held by one human. The source is WILDCARD (omitted), like TRUSTS_ISSUER, so any vendor's account type can point here without identity_core depending upward on the vendor plugin. The edge is an assertion that two records are the same person; it is drawn by whoever knows that (an operator's seed, an HR feed, a collector matching an immutable identifier) and never inferred from a shared display name or email address. An account held by nobody has no edge; that is the unmatched state an access review must show, not an error.",
+  "targets": [
+    "identity_core__human"
+  ],
+  "property_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "matched_on": {
+        "type": "string",
+        "description": "How the account was tied to the person, in one phrase (for example \"operator seed\", \"HR employee id\", \"Okta immutable id\"). Blank means not recorded, not unmatched."
+      }
+    }
+  }
+}
