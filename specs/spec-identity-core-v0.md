@@ -180,7 +180,9 @@ one view in cannot be shared across them. This follows `req-identity-core-existe
 the substrate names the party and takes no position on its relationships.
 
 Fields: `name` (required; display and v0 identity), `domain` (primary DNS domain when known;
-blank = not observed), `configuration` (object), `tags` (object). `NATURAL_KEY = ("name",)`:
+blank = not observed), `tags` (object). No free-form `configuration` field: nothing collects an
+organization's source record, so it would only collect unchosen data (removed 2026-09-23).
+`NATURAL_KEY = ("name",)`:
 a designed organization often has no domain yet, so its name is the only fact it carries;
 revisit when an observer supplies a stronger key. No default dimension: `identity.protocol`
 does not apply, and a party-kind value would restate the entity type. Icon `organization`,
@@ -193,6 +195,7 @@ same identity-anchor palette as `oidc_issuer`.
 | req-identity-core-organization-1 | Name only | Implemented | A `create_node` write with only `name` succeeds; `domain` stays blank (not observed). |
 | req-identity-core-organization-2 | Name required | Implemented | A write without `name` is refused. |
 | req-identity-core-organization-3 | Role-free | Implemented | The type carries no default dimension and no field naming a role. |
+| req-identity-core-organization-4 | No free-form blob | Implemented | A write carrying `configuration` is refused. |
 
 ### Human Model
 ----

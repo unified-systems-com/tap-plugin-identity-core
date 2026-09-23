@@ -37,6 +37,10 @@ class TestOrganization:
         result = _create({"name": "Acme Federal", "domain": "acme.example"})
         assert Entity.objects.get(pk=result.entity_id).name == "Acme Federal"
 
+    def test_no_configuration_blob(self) -> None:
+        """req-identity-core-organization-4."""
+        assert not _create({"name": "Acme Federal", "configuration": {"k": "v"}}).success
+
     def test_no_role_dimension(self) -> None:
         """req-identity-core-organization-3: role-free — no default dimension names a role."""
         result = _create({"name": "Acme Federal"})
