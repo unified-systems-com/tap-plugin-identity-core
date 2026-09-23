@@ -7,6 +7,7 @@ description = "Cross-cutting federated-identity vocabulary substrate — the OID
 
 [models]
 identity_core__oidc_issuer = "tap_plugin.identity_core.models.oidc_issuer.OidcIssuer"
+identity_core__organization = "tap_plugin.identity_core.models.organization.Organization"
 
 [edges]
 TRUSTS_ISSUER__identity_core = "edges/TRUSTS_ISSUER.edge.json"
