@@ -180,8 +180,9 @@ one view in cannot be shared across them. This follows `req-identity-core-existe
 the substrate names the party and takes no position on its relationships.
 
 Fields: `name` (required; display and v0 identity), `domain` (primary DNS domain when known;
-blank = not observed), `tags` (object). No free-form `configuration` field: nothing collects an
-organization's source record, so it would only collect unchosen data (removed 2026-09-23).
+blank = not observed). No free-form `configuration` field and no `tags` map: nothing collects an
+organization's source record, so either would only collect unchosen data (`configuration` removed
+2026-09-23; `tags` removed 2026-09-24, nothing read it).
 `NATURAL_KEY = ("name",)`:
 a designed organization often has no domain yet, so its name is the only fact it carries;
 revisit when an observer supplies a stronger key. No default dimension: `identity.protocol`
